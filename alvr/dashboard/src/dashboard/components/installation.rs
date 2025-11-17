@@ -1,9 +1,6 @@
 use crate::dashboard::ServerRequest;
 use alvr_gui_common::theme;
-use eframe::{
-    egui::{Frame, Grid, Layout, RichText, Ui},
-    emath::Align,
-};
+use eframe::egui::{Frame, Grid, RichText, ScrollArea, Ui};
 use std::{
     path::PathBuf,
     time::{Duration, Instant},
@@ -66,22 +63,23 @@ impl InstallationTab {
                 .fill(theme::SECTION_BG)
                 .inner_margin(theme::FRAME_PADDING)
                 .show(ui, |ui| {
-                    ui.vertical_centered(|ui| {
+                    ui.vertical_centered_justified(|ui| {
                         ui.label(RichText::new("Registered drivers").size(18.0));
                     });
 
                     Grid::new(0).num_columns(2).show(ui, |ui| {
                         for driver_path in &self.drivers {
-                            ui.horizontal(|ui| {
-                                ui.add_space(5.0);
+                            if ui.button("Remove").clicked() {
+                                requests.push(InstallationTabRequest::ServerRequest(
+                                    ServerRequest::UnregisterDriver(driver_path.clone()),
+                                ));
+                            }
+                            
+                            ScrollArea::new([true, false])
+                            .auto_shrink([false,false])
+                            .id_salt(driver_path)
+                            .show(ui, |ui| {
                                 ui.label(driver_path.to_string_lossy());
-                            });
-                            ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                                if ui.button("Remove").clicked() {
-                                    requests.push(InstallationTabRequest::ServerRequest(
-                                        ServerRequest::UnregisterDriver(driver_path.clone()),
-                                    ));
-                                }
                             });
                             ui.end_row();
                         }

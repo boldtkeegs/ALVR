@@ -273,11 +273,6 @@ fn new_clients_section(
                     // Extend to the right
                     ui.with_layout(Layout::right_to_left(Align::Center), |_| ());
                 });
-
-                if clients.is_empty() {
-                    // for some reson any positive value adds too much space
-                    ui.add_space(-10.0);
-                }
             });
             for (hostname, _) in clients {
                 Frame::group(ui.style())
