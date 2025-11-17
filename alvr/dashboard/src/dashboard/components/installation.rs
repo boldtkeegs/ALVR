@@ -74,13 +74,13 @@ impl InstallationTab {
                                     ServerRequest::UnregisterDriver(driver_path.clone()),
                                 ));
                             }
-                            
+
                             ScrollArea::new([true, false])
-                            .auto_shrink([false,false])
-                            .id_salt(driver_path)
-                            .show(ui, |ui| {
-                                ui.label(driver_path.to_string_lossy());
-                            });
+                                .auto_shrink([false, false])
+                                .id_salt(driver_path)
+                                .show(ui, |ui| {
+                                    ui.label(driver_path.to_string_lossy());
+                                });
                             ui.end_row();
                         }
                     });

@@ -236,7 +236,7 @@ impl eframe::App for Dashboard {
                 .frame(
                     Frame::new()
                         .fill(theme::LIGHTER_BG)
-                        .inner_margin(Margin::same(7))
+                        .inner_margin(Margin::same(7)),
                 )
                 .exact_width(160.0)
                 .show(context, |ui| {
@@ -271,21 +271,31 @@ impl eframe::App for Dashboard {
                                 ui.label(RichText::new("SteamVR:").size(13.0));
                                 ui.add_space(-10.0);
                                 if connected_to_server {
-                                    ui.with_layout(Layout::centered_and_justified(egui::Direction::LeftToRight), |ui| {
-                                        ui.label(
-                                        RichText::new("Connected")
-                                            .color(theme::OK_GREEN)
-                                            .size(13.0),
-                                        );
-                                    });
+                                    ui.with_layout(
+                                        Layout::centered_and_justified(
+                                            egui::Direction::LeftToRight,
+                                        ),
+                                        |ui| {
+                                            ui.label(
+                                                RichText::new("Connected")
+                                                    .color(theme::OK_GREEN)
+                                                    .size(13.0),
+                                            );
+                                        },
+                                    );
                                 } else {
-                                    ui.with_layout(Layout::centered_and_justified(egui::Direction::LeftToRight), |ui| {
-                                        ui.label(
-                                        RichText::new("Disconnected")
-                                            .color(theme::KO_RED)
-                                            .size(13.0),
-                                        );
-                                    });
+                                    ui.with_layout(
+                                        Layout::centered_and_justified(
+                                            egui::Direction::LeftToRight,
+                                        ),
+                                        |ui| {
+                                            ui.label(
+                                                RichText::new("Disconnected")
+                                                    .color(theme::KO_RED)
+                                                    .size(13.0),
+                                            );
+                                        },
+                                    );
                                 }
                             })
                         },

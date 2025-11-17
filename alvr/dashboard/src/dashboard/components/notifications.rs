@@ -123,7 +123,7 @@ impl NotificationBar {
         let mut bottom_bar = TopBottomPanel::bottom("bottom_panel").frame(
             Frame::default()
                 .inner_margin(egui::vec2(10.0, 5.0))
-                .fill(bg)
+                .fill(bg),
         );
         let alignment = if !self.expanded {
             bottom_bar = bottom_bar.max_height(26.0);
@@ -149,7 +149,10 @@ impl NotificationBar {
                 }
                 ui.with_layout(Layout::left_to_right(alignment), |ui| {
                     //A LayoutJob that has its TextWrapping updated to fill the available space would probably be a more elegant solution.
-                    ui.add(Label::new(RichText::new(&self.message).color(fg).size(12.0)).wrap_mode(wrapping));
+                    ui.add(
+                        Label::new(RichText::new(&self.message).color(fg).size(12.0))
+                            .wrap_mode(wrapping),
+                    );
                 })
             })
         });
