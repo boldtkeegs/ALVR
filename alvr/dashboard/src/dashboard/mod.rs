@@ -15,7 +15,9 @@ use alvr_events::EventType;
 use alvr_gui_common::theme;
 use alvr_packets::{ClientConnectionsAction, PathValuePair};
 use alvr_session::SessionConfig;
-use eframe::egui::{self, Align, CentralPanel, Frame, Layout, Margin, RichText, SidePanel};
+use eframe::egui::{
+    self, Align, CentralPanel, Direction, Frame, Layout, Margin, RichText, SidePanel,
+};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, path::PathBuf, sync::Arc};
 
@@ -270,33 +272,19 @@ impl eframe::App for Dashboard {
                                 ui.add_space(4.0);
                                 ui.label(RichText::new("SteamVR:").size(13.0));
                                 ui.add_space(-10.0);
-                                if connected_to_server {
-                                    ui.with_layout(
-                                        Layout::centered_and_justified(
-                                            egui::Direction::LeftToRight,
-                                        ),
-                                        |ui| {
-                                            ui.label(
-                                                RichText::new("Connected")
-                                                    .color(theme::OK_GREEN)
-                                                    .size(13.0),
-                                            );
-                                        },
-                                    );
-                                } else {
-                                    ui.with_layout(
-                                        Layout::centered_and_justified(
-                                            egui::Direction::LeftToRight,
-                                        ),
-                                        |ui| {
-                                            ui.label(
-                                                RichText::new("Disconnected")
-                                                    .color(theme::KO_RED)
-                                                    .size(13.0),
-                                            );
-                                        },
-                                    );
-                                }
+                                ui.with_layout(
+                                    Layout::centered_and_justified(Direction::LeftToRight),
+                                    |ui| {
+                                        ui.label(
+                                            if connected_to_server {
+                                                RichText::new("Connected").color(theme::OK_GREEN)
+                                            } else {
+                                                RichText::new("Disconnected").color(theme::KO_RED)
+                                            }
+                                            .size(13.0),
+                                        )
+                                    },
+                                );
                             })
                         },
                     )
