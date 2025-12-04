@@ -242,8 +242,7 @@ fn connection_pipeline(
         settings.connection.stream_port,
         stream_protocol,
         settings.connection.dscp,
-        settings.connection.client_send_buffer_bytes,
-        settings.connection.client_recv_buffer_bytes,
+        settings.connection.client_buffer_config,
     )
     .to_con()?;
 

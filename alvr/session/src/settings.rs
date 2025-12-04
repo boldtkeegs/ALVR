@@ -1325,11 +1325,20 @@ pub struct DiscoveryConfig {
     pub auto_trust_clients: bool,
 }
 
-#[derive(SettingsSchema, Serialize, Deserialize, Clone, Copy)]
+#[derive(SettingsSchema, Serialize, Deserialize, Clone, Copy, Default)]
 pub enum SocketBufferSize {
+    #[default]
     Default,
     Maximum,
     Custom(#[schema(suffix = "B")] u32),
+}
+
+#[derive(SettingsSchema, Serialize, Deserialize, Clone, Copy, Default)]
+pub struct SocketBufferConfig {
+    #[schema(strings(display_name = "Send size"))]
+    pub send_size_bytes: SocketBufferSize,
+    #[schema(strings(display_name = "Receive size"))]
+    pub recv_size_bytes: SocketBufferSize,
 }
 
 #[derive(SettingsSchema, Serialize, Deserialize, Clone)]
@@ -1409,17 +1418,8 @@ TCP: Slower than UDP, but more stable. Pick this if you experience video or audi
     #[schema(strings(display_name = "Local OSC port"))]
     pub osc_local_port: u16,
 
-    #[schema(strings(display_name = "Streamer send buffer size"))]
-    pub server_send_buffer_bytes: SocketBufferSize,
-
-    #[schema(strings(display_name = "Streamer receive buffer size"))]
-    pub server_recv_buffer_bytes: SocketBufferSize,
-
-    #[schema(strings(display_name = "Client send buffer size"))]
-    pub client_send_buffer_bytes: SocketBufferSize,
-
-    #[schema(strings(display_name = "Client receive buffer size"))]
-    pub client_recv_buffer_bytes: SocketBufferSize,
+    pub server_buffer_config: SocketBufferConfig,
+    pub client_buffer_config: SocketBufferConfig,
 
     #[schema(strings(
         help = r#"The server discards video packets if it can't push them to the network.
@@ -1619,6 +1619,10 @@ pub fn session_settings_default() -> SettingsDefault {
     let socket_buffer = SocketBufferSizeDefault {
         Custom: 100000,
         variant: SocketBufferSizeDefaultVariant::Maximum,
+    };
+    let socket_buffer_config = SocketBufferConfigDefault {
+        send_size_bytes: socket_buffer.clone(),
+        recv_size_bytes: socket_buffer,
     };
 
     SettingsDefault {
@@ -2138,10 +2142,8 @@ pub fn session_settings_default() -> SettingsDefault {
                     variant: DscpTosDefaultVariant::ExpeditedForwarding,
                 },
             },
-            server_send_buffer_bytes: socket_buffer.clone(),
-            server_recv_buffer_bytes: socket_buffer.clone(),
-            client_send_buffer_bytes: socket_buffer.clone(),
-            client_recv_buffer_bytes: socket_buffer,
+            server_buffer_config: socket_buffer_config.clone(),
+            client_buffer_config: socket_buffer_config,
             max_queued_server_video_frames: 1024,
             avoid_video_glitching: false,
             minimum_idr_interval_ms: 100,

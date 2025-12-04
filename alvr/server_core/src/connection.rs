@@ -840,8 +840,7 @@ fn connection_pipeline(
         initial_settings.connection.stream_port,
         stream_protocol,
         initial_settings.connection.dscp,
-        initial_settings.connection.server_send_buffer_bytes,
-        initial_settings.connection.server_recv_buffer_bytes,
+        initial_settings.connection.server_buffer_config,
         initial_settings.connection.packet_size as _,
     )?;
 
@@ -878,12 +877,10 @@ fn connection_pipeline(
                     .read()
                     .unrecenter_view_params(&mut header.global_view_params);
 
-                let mut buffer = video_sender.get_buffer(&header).unwrap();
-                // todo: make encoder write to socket buffers directly to avoid copy
-                buffer
-                    .get_range_mut(0, payload.len())
-                    .copy_from_slice(&payload);
-                video_sender.send(buffer).ok();
+                // todo: use get_buffer and make encoder write to socket buffers directly to avoid copy
+                video_sender
+                    .send_header_with_payload(&header, &payload)
+                    .ok();
             }
         }
     });
