@@ -124,34 +124,67 @@ impl DevicesTab {
         });
 
         if let Some(mut state) = self.edit_popup_state.take() {
+            let panel_rect = ui.clip_rect();
+            let offset_y = panel_rect.center().y - ui.ctx().content_rect().center().y;
             Window::new("Edit connection")
-                .anchor(Align2::CENTER_CENTER, (0.0, 0.0))
+                .anchor(Align2::CENTER_CENTER, (0.0, offset_y))
                 .resizable(false)
                 .collapsible(false)
+                .max_height(panel_rect.height() - theme::FRAME_PADDING * 2f32)
                 .show(ui.ctx(), |ui| {
-                    ui.add_space(5.0);
-
-                    ui.columns(2, |ui| {
-                        ui[0].horizontal(|ui| {
-                            ui.add_space(5.0);
+                    ui.add_space(theme::FRAME_TEXT_SPACING);
+                    Grid::new("connection dialogue")
+                        .num_columns(2)
+                        .show(ui, |ui| {
                             ui.label("Hostname:");
-                        });
-                        ui[1].add_enabled(
-                            state.new_devices,
-                            TextEdit::singleline(&mut state.hostname),
-                        );
+                            ui.add_enabled(
+                                state.new_devices,
+                                TextEdit::singleline(&mut state.hostname),
+                            );
+                            ui.end_row();
 
-                        ui[0].horizontal(|ui| {
-                            ui.add_space(5.0);
                             ui.label("IP Addresses:");
+                            ui.with_layout(Layout::top_down_justified(Align::Center), |ui| {
+                                if !state.ips.is_empty() {
+                                    ScrollArea::new([false, true])
+                                        .auto_shrink([false, true])
+                                        // The max height is set inflexible to UI changes, and still doesn't accomplish the visual goal of the panel height minus padding
+                                        .max_height(
+                                            panel_rect.height()
+                                                - (ui.spacing().window_margin.top
+                                                    + ui.spacing().window_margin.bottom)
+                                                    as f32
+                                                - theme::FRAME_TEXT_SPACING
+                                                - theme::FRAME_PADDING * 2f32
+                                                - (ui.spacing().interact_size.y
+                                                    + ui.spacing().item_spacing.y)
+                                                    * 3f32
+                                                - (ui.text_style_height(&egui::TextStyle::Heading)
+                                                    + ui.spacing().item_spacing.y * 2f32),
+                                        )
+                                        .show(ui, |ui| {
+                                            let mut to_remove: Option<usize> = None;
+                                            for (i, address) in state.ips.iter_mut().enumerate() {
+                                                ui.horizontal(|ui| {
+                                                    // Putting the remove button to the right of the textbox would look more appealing, but it causes strange alignment issues
+                                                    if ui.button("❌").clicked() {
+                                                        to_remove = Some(i);
+                                                    }
+
+                                                    ui.text_edit_singleline(address);
+                                                });
+                                            }
+                                            if let Some(index) = to_remove {
+                                                state.ips.remove(index);
+                                            }
+                                        });
+                                }
+                                if ui.button("Add new").clicked() {
+                                    state.ips.push("192.168.X.X".into());
+                                }
+                            });
+                            ui.end_row();
                         });
-                        for address in &mut state.ips {
-                            ui[1].text_edit_singleline(address);
-                        }
-                        if ui[1].button("Add new").clicked() {
-                            state.ips.push("192.168.X.X".into());
-                        }
-                    });
 
                     ui.columns(2, |ui| {
                         if ui[0].button("Cancel").clicked() {
